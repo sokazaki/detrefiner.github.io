@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="DetRefiner: Model-Agnostic Detection Refinement with Feature Fusion Transformer.">
+  <meta name="keywords" content="DetRefiner, Open-Vocabulary Object Detection">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DetRefiner: Model-Agnostic Detection Refinement with Feature Fusion Transformer</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" href="./static/images/favicon.svg"> -->
+    <!-- <link rel="icon" > -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22> </text></svg>">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">DetRefiner: Model-Agnostic Detection Refinement with Feature Fusion Transformer</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=GIGC74IAAAAJ">Soichiro Okazaki</a><sup>1</sup>,</span>
+            <span class="author-block">
+              Tatsuya Sasaki<sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=GKC6bbYAAAAJ">Hiroki Ohashi</a><sup>1</sup></span>
+
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Hitachi, Ltd. Research and Development Group.</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2605.10190.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block" style="opacity:0.65">
+                <a href="https://github.com/hitachi-rd-cv/detrefiner"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (Soon)</span>
+                  </a>
+              </span>
+              <span class="link-block" style="opacity:0.65">
+                <a href="https://huggingface.co/papers/2605.10190"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">🤗</span>
+                  <span>Demo (Soon)</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="static/images/detrefiner_result1.png" style="width: 100%" alt="DetRefiner teaser result">
+      <h2 class="subtitle has-text-centered">
+        <span style="color: orange; font-weight:bold"> DetRefiner can refine object detection results by recalibrating detector confidence using global and local visual features extracted from foundation models such as <a href="https://github.com/facebookresearch/dinov3">DINOv3</a>.</span> 
+       <br> As a plug-and-play module, DetRefiner improves diverse OVOD models, such as <a href="https://github.com/IDEA-Research/GroundingDINO">Grounding DINO</a> and <a href="https://github.com/isee-laboratory/llmdet">LLMDet</a>, without accessing internal detector features or retraining the base model.
+        </h2>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            <b>The process of refining object detection results with DetRefiner consists of three steps:</b>
+          </p>
+
+          <ol>
+            <li><b>Refines</b> global-level and patch-level DINOv3 features with a lightweight 2-layer Transformer Encoder, then pools box-level representations using ROI Align.</li>
+            <li><b>Matches</b> class and ROI features with CLIP text embeddings, while using CLIP-based distillation for semantic alignment only during training.</li>
+            <li><b>Merges</b> image-level, box-level, and base detector scores to recalibrate detections without accessing internal detector features or retraining the detector.</li>
+          </ol>
+
+        <div class="hero-body has-text-centered">
+          <img src="static/images/detrefiner_overview.png" style="width: 80%;" alt="Overview of DetRefiner">
+        </div>
+
+        <p>
+          <b>DetRefiner has the following inference characteristics:</b>
+        </p>
+
+        <ul>
+          <li>Uses only the input image and detector outputs, i.e., labels, boxes, and confidence scores.</li>
+          <li>Does not change box coordinates or category labels.</li>
+          <li>Rescues low-scored true positives and suppresses false positives.</li>
+          <li>A single trained DetRefiner can generalize to different detectors without further retraining.</li>
+        </ul>
+      </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+    <div class="column is-full-width" >
+      <h2 class="title is-3">Quantitative Results</h2>
+      <div class="content has-text-justified" style="text-align: center;">
+<div class="hero-body" style="text-align: center">
+  <p style="margin-bottom: 24px;">
+    DetRefiner consistently improves the performance of various models under <b>zero-shot</b> or <b>cross-domain</b> settings on datasets 
+    such as <b>COCO, LVIS, Pascal VOC, and ODinW-13</b>. The evaluation uses four types of base detectors—<b>GLIP, MM-Grounding DINO, 
+    Grounding DINO, and LLMDet</b>—with varying model sizes. The following table shows the results on <b>LVIS</b>.
+  </p>
+
+  <img
+    src="static/images/detrefiner_result2.png"
+    style="width: 80%; text-align: center;"
+    alt="LVIS quantitative results"
+  >
+</div>
+    </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+    <div class="column is-full-width">
+      <h2 class="title is-3">Qualitative Results</h2>
+      <div class="content has-text-justified">
+        <p>
+          <b>Four qualitative comparisons of detection results before and after applying DetRefiner.</b>
+        </p>
+
+        <ul>
+          <li>
+            Top: base detector predictions (left) vs.
+            <span style="color: red; font-weight: bold;">predictions refined by DetRefiner (right)</span>
+          </li>
+          <li>
+            Bottom: predictions based on the class vector (left) and patch vector (right)
+          </li>
+        </ul>
+
+      <div class="hero-body has-text-centered">
+        <img src="static/images/detrefiner_result3-1.png" style="width: 100%;" alt="Qualitative comparison result 1">
+      </div>
+      <div class="hero-body has-text-centered">
+        <img src="static/images/detrefiner_result3-2.png" style="width: 100%;" alt="Qualitative comparison result 2">
+      </div>
+      <div class="hero-body has-text-centered">
+        <img src="static/images/detrefiner_result3-3.png" style="width: 100%;" alt="Qualitative comparison result 3">
+      </div>
+      <div class="hero-body has-text-centered">
+        <img src="static/images/detrefiner_result3-4.png" style="width: 100%;" alt="Qualitative comparison result 4">
+      </div>
+    </div>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+<pre><code>@article{okazaki2026detrefiner,
+title={DetRefiner: Model-Agnostic Detection Refinement with Feature Fusion Transformer},
+author={Okazaki, Soichiro and Sasaki, Tatsuya and Ohashi, Hiroki},
+journal={arXiv preprint arXiv:2605.10190},
+year={2026}
+}
+</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="https://arxiv.org/abs/2605.10190">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/hitachi-rd-cv/detrefiner" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="content">
+        <p>
+          The template is borrowed from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
